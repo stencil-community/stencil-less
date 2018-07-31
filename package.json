@@ -56,6 +56,7 @@
       "js",
       "json",
       "jsx"
-    ]
+    ],
+    "testURL": "http://localhost"
   }
 }

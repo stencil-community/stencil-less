@@ -10,10 +10,12 @@ npm install @stencil/less --save-dev
 
 Next, within the project's `stencil.config.js` file, import the plugin and add it to the config's `plugins` config:
 
-```js
-const less = require('@stencil/less');
+#### stencil.config.ts
+```ts
+import { Config } from '@stencil/core';
+import { less } from '@stencil/less';
 
-exports.config = {
+export const config: Config = {
   plugins: [
     less()
   ]

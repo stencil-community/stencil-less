@@ -4,11 +4,11 @@ import * as d from './declarations';
 import * as util from './util';
 
 
-module.exports = function less(opts: d.PluginOptions = {}) {
+export function less(opts: d.PluginOptions = {}) {
 
   return {
-
-    transform: function (sourceText: string, fileName: string, context: d.PluginCtx) {
+    name: 'less',
+    transform(sourceText: string, fileName: string, context: d.PluginCtx) {
       if (!context || !util.usePlugin(fileName)) {
         return null;
       }
@@ -47,10 +47,6 @@ module.exports = function less(opts: d.PluginOptions = {}) {
           }
         });
       });
-    },
-
-    name: 'less',
-
+    }
   };
-
-};
+}

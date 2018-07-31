@@ -8,7 +8,7 @@ export function loadDiagnostic(context: d.PluginCtx, lessError: any, filePath: s
 
   const diagnostic: d.Diagnostic = {
     level: 'error',
-    type: 'less',
+    type: 'css',
     language: 'less',
     header: 'less error',
     code: lessError.status && lessError.status.toString(),

@@ -1,6 +1,6 @@
 {
   "name": "@stencil/less",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
@@ -20,7 +20,7 @@
     "test.watch": "jest --watch"
   },
   "dependencies": {
-    "less": "3.0.1"
+    "less": "3.9.0"
   },
   "devDependencies": {
     "@types/jest": "^22.1.3",

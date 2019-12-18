@@ -29,6 +29,7 @@ export function less(opts: d.PluginOptions = {}): d.Plugin {
 
         render(renderOpts.data, {
           plugins: renderOpts.plugins,
+          javascriptEnabled: renderOpts.javascriptEnabled,
           filename: fileName
         }, (err: any, lessResult: any) => {
           if (err) {

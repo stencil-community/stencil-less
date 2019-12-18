@@ -43,6 +43,13 @@ describe('getRenderOptions', () => {
     expect(output.data).toBe(sourceText);
   });
 
+  it('should enabled inline javaScript', ()=>{
+    const input: d.PluginOptions = {
+      javascriptEnabled: true
+    };
+    const output = util.getRenderOptions(input, sourceText,context);
+    expect(output.javascriptEnabled).toBe(true);
+  })
 });
 
 

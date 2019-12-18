@@ -7,7 +7,7 @@ export function usePlugin(fileName: string) {
 }
 
 
-export function getRenderOptions(opts: d.PluginOptions, sourceText: string, context: d.PluginCtx): { data: string; plugins: Less.Plugin[] } {
+export function getRenderOptions(opts: d.PluginOptions, sourceText: string, context: d.PluginCtx): { data: string; javascriptEnabled: boolean; plugins: Less.Plugin[] } {
   const injectGlobalPaths = Array.isArray(opts.injectGlobalPaths) ? opts.injectGlobalPaths.slice() : [];
 
   let injectText = '';
@@ -26,6 +26,7 @@ export function getRenderOptions(opts: d.PluginOptions, sourceText: string, cont
 
   return {
     data: `${injectText}${sourceText}`,
+    javascriptEnabled: opts.javascriptEnabled || false,
     plugins: opts.plugins || []
   };
 }

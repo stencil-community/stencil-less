@@ -65,6 +65,22 @@ exports.config = {
 
 Note that each of these files are always added to each component, so in most cases they shouldn't contain CSS because it'll get duplicated in each component. Instead, `injectGlobalPaths` should only be used for Less variables, mixins and functions, but not contain any CSS.
 
+### Enable Inline JavaScript
+
+False by default starting in Less.js v3.0.0. Enables evaluation of JavaScript inline in .less files. This created a security problem for some developers who didn't expect user input for style sheets to have executable code.
+
+```js
+exports.config = {
+  plugins: [
+    less({
+      javascriptEnabled: true
+    })
+  ]
+};
+```
+
+
+
 ## Related
 
 * [Less](https://www.npmjs.com/package/less)

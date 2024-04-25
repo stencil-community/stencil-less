@@ -1,11 +1,11 @@
-# @stencil/less
+# @stencil-community/less
 
 This package is used to easily precompile Less files within the Stencil components.
 
 First, npm install within the project:
 
 ```bash
-npm install @stencil/less --save-dev
+npm install @stencil-community/less --save-dev
 ```
 
 Next, within the project's `stencil.config.js` file, import the plugin and add it to the config's `plugins` config:
@@ -13,7 +13,7 @@ Next, within the project's `stencil.config.js` file, import the plugin and add i
 #### stencil.config.ts
 ```ts
 import { Config } from '@stencil/core';
-import { less } from '@stencil/less';
+import { less } from '@stencil-community/less';
 
 export const config: Config = {
   plugins: [

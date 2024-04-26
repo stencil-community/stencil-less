@@ -1,5 +1,5 @@
-import { render } from 'less';
-import { loadDiagnostic } from './diagnostics';
+import {render} from 'less';
+import {loadDiagnostic} from './diagnostics';
 import * as d from './declarations';
 import * as util from './util';
 
@@ -42,7 +42,7 @@ export function less(opts: d.PluginOptions = {}): d.Plugin {
             // write this css content to memory only so it can be referenced
             // later by other plugins (autoprefixer)
             // but no need to actually write to disk
-            context.fs.writeFile(results.id, results.code, { inMemoryOnly: true }).then(() => {
+            context.fs.writeFile(results.id, results.code, {inMemoryOnly: true}).then(() => {
               resolve(results);
             });
           }

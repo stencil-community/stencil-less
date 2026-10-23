@@ -1,35 +1,43 @@
-import * as d from './declarations';
-import * as path from 'path';
-
+import * as path from 'node:path';
+import type * as d from './declarations';
 
 export function usePlugin(fileName: string) {
   return /\.less$/i.test(fileName);
 }
 
-
-export function getRenderOptions(opts: d.PluginOptions, sourceText: string, context: d.PluginCtx): { data: string; plugins: Less.Plugin[] } {
-  const injectGlobalPaths = Array.isArray(opts.injectGlobalPaths) ? opts.injectGlobalPaths.slice() : [];
+export function getRenderOptions(
+  opts: d.PluginOptions,
+  sourceText: string,
+  context: d.PluginCtx,
+): { data: string; plugins: d.LessPlugin[] } {
+  const injectGlobalPaths = Array.isArray(opts.injectGlobalPaths)
+    ? opts.injectGlobalPaths.slice()
+    : [];
 
   let injectText = '';
 
   if (injectGlobalPaths.length > 0) {
     // automatically inject each of these paths into the source text
-    injectText = injectGlobalPaths.map(injectGlobalPath => {
-      if (!path.isAbsolute(injectGlobalPath)) {
-        // convert any relative paths to absolute paths relative to the project root
-        injectGlobalPath = path.join(context.config.rootDir, injectGlobalPath);
-      }
+    injectText = injectGlobalPaths
+      .map((injectGlobalPath) => {
+        if (!path.isAbsolute(injectGlobalPath)) {
+          // convert any relative paths to absolute paths relative to the project root
+          injectGlobalPath = path.join(
+            context.config.rootDir,
+            injectGlobalPath,
+          );
+        }
 
-      return `@import "${injectGlobalPath}";`;
-    }).join('');
+        return `@import "${injectGlobalPath}";`;
+      })
+      .join('');
   }
 
   return {
     data: `${injectText}${sourceText}`,
-    plugins: opts.plugins || []
+    plugins: opts.plugins || [],
   };
 }
-
 
 export function createResultsId(fileName: string) {
   // create what the new path is post transform (.css)

@@ -1,21 +1,18 @@
-import pkg from './package.json' assert {type: "json"};
-
+import pkg from './package.json' with { type: 'json' };
 
 export default {
   input: 'dist/index.js',
 
-  external: [
-    'path',
-    'less'
-  ],
+  external: ['node:path', 'less'],
 
-  output: [{
-    format: 'cjs',
-    file: pkg.main
-  },
+  output: [
+    {
+      format: 'cjs',
+      file: pkg.main,
+    },
     {
       format: 'es',
-      file: pkg.module
-    }
-  ]
+      file: pkg.module,
+    },
+  ],
 };

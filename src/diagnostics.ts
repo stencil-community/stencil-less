@@ -1,7 +1,12 @@
-import * as d from './declarations';
+import type * as d from './declarations';
 
+type LessError = Less.RenderError & { status?: number };
 
-export function loadDiagnostic(context: d.PluginCtx, lessError: any, filePath: string) {
+export function loadDiagnostic(
+  context: d.PluginCtx,
+  lessError: LessError,
+  filePath: string,
+) {
   if (!lessError || !context) {
     return;
   }
@@ -11,17 +16,25 @@ export function loadDiagnostic(context: d.PluginCtx, lessError: any, filePath: s
     type: 'css',
     language: 'less',
     header: 'less error',
-    code: lessError.status && lessError.status.toString(),
+    code: lessError.status?.toString(),
     relFilePath: null,
     absFilePath: null,
     messageText: lessError.message,
-    lines: []
+    lines: [],
   };
 
   if (filePath) {
     diagnostic.absFilePath = filePath;
-    diagnostic.relFilePath = formatFileName(context.config.rootDir, diagnostic.absFilePath);
-    diagnostic.header = formatHeader('less', diagnostic.absFilePath, context.config.rootDir, lessError.line);
+    diagnostic.relFilePath = formatFileName(
+      context.config.rootDir,
+      diagnostic.absFilePath,
+    );
+    diagnostic.header = formatHeader(
+      'less',
+      diagnostic.absFilePath,
+      context.config.rootDir,
+      lessError.line,
+    );
 
     if (lessError.line > -1) {
       try {
@@ -33,7 +46,7 @@ export function loadDiagnostic(context: d.PluginCtx, lessError: any, filePath: s
           lineNumber: lessError.line,
           text: srcLines[lessError.line - 1],
           errorCharStart: lessError.column,
-          errorLength: 0
+          errorLength: 0,
         };
 
         for (let i = errorLine.errorCharStart; i >= 0; i--) {
@@ -43,7 +56,11 @@ export function loadDiagnostic(context: d.PluginCtx, lessError: any, filePath: s
           errorLine.errorCharStart = i;
         }
 
-        for (let j = errorLine.errorCharStart; j <= errorLine.text.length; j++) {
+        for (
+          let j = errorLine.errorCharStart;
+          j <= errorLine.text.length;
+          j++
+        ) {
           if (STOP_CHARS.indexOf(errorLine.text.charAt(j)) > -1) {
             break;
           }
@@ -63,7 +80,7 @@ export function loadDiagnostic(context: d.PluginCtx, lessError: any, filePath: s
             lineNumber: errorLine.lineNumber - 1,
             text: srcLines[errorLine.lineIndex - 1],
             errorCharStart: -1,
-            errorLength: -1
+            errorLength: -1,
           };
 
           diagnostic.lines.unshift(previousLine);
@@ -75,22 +92,19 @@ export function loadDiagnostic(context: d.PluginCtx, lessError: any, filePath: s
             lineNumber: errorLine.lineNumber + 1,
             text: srcLines[errorLine.lineIndex + 1],
             errorCharStart: -1,
-            errorLength: -1
+            errorLength: -1,
           };
 
           diagnostic.lines.push(nextLine);
         }
-
       } catch (e) {
         console.error(`StyleLessPlugin loadDiagnostic, ${e}`);
       }
     }
-
   }
 
   context.diagnostics.push(diagnostic);
 }
-
 
 function formatFileName(rootDir: string, fileName: string) {
   if (!rootDir || !fileName) return '';
@@ -100,13 +114,18 @@ function formatFileName(rootDir: string, fileName: string) {
     fileName = fileName.substr(1);
   }
   if (fileName.length > 80) {
-    fileName = '...' + fileName.substr(fileName.length - 80);
+    fileName = `...${fileName.substr(fileName.length - 80)}`;
   }
   return fileName;
 }
 
-
-function formatHeader(type: string, fileName: string, rootDir: string, startLineNumber: number = null, endLineNumber: number = null) {
+function formatHeader(
+  type: string,
+  fileName: string,
+  rootDir: string,
+  startLineNumber: number = null,
+  endLineNumber: number = null,
+) {
   let header = `${type}: ${formatFileName(rootDir, fileName)}`;
 
   if (startLineNumber !== null && startLineNumber > 0) {
@@ -120,5 +139,29 @@ function formatHeader(type: string, fileName: string, rootDir: string, startLine
   return header;
 }
 
-
-const STOP_CHARS = ['', '\n', '\r', '\t', ' ', ':', ';', ',', '{', '}', '.', '#', '@', '!', '[', ']', '(', ')', '&', '+', '~', '^', '*', '$'];
+const STOP_CHARS = [
+  '',
+  '\n',
+  '\r',
+  '\t',
+  ' ',
+  ':',
+  ';',
+  ',',
+  '{',
+  '}',
+  '.',
+  '#',
+  '@',
+  '!',
+  '[',
+  ']',
+  '(',
+  ')',
+  '&',
+  '+',
+  '~',
+  '^',
+  '*',
+  '$',
+];

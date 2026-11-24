@@ -5,7 +5,7 @@
     "declaration": true,
     "forceConsistentCasingInFileNames": true,
     "lib": [
-      "es2017",
+      "es2022",
       "dom"
     ],
     "module": "esnext",
@@ -20,9 +20,10 @@
     "removeComments": false,
     "strict": false,
     "types": ["node", "less"],
-    "target": "es2017"
+    "target": "es2022"
   },
   "files": [
+    "src/wizard.ts",
     "src/index.ts"
   ]
 }

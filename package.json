@@ -9,16 +9,20 @@
     "dist/"
   ],
   "scripts": {
-    "prebuild": "rimraf ./dist && npm run test && npm run lint",
-    "build": "tsc && npm run rollup",
-    "watch": "tsc --watch",
-    "rollup": "rollup -c",
+    "prebuild": "rimraf ./dist && npm run typecheck && npm run test && npm run lint",
+    "build": "npm run bundle",
+    "watch": "rolldown -c --watch",
+    "typecheck": "tsc --noEmit",
+    "bundle": "rolldown -c",
     "version": "npm run build",
     "release": "np",
     "lint": "biome check",
     "lint:fix": "biome check --write",
     "test": "jest",
     "test.watch": "jest --watch"
+  },
+  "stencil": {
+    "wizard": "./dist/wizard.js"
   },
   "dependencies": {
     "less": "^4.9.1"
@@ -28,6 +32,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.9",
+    "@stencil/cli": "^5.0.0-0",
     "@swc/core": "^1.16.22",
     "@swc/jest": "^0.2.39",
     "@types/jest": "^30.0.0",
@@ -36,7 +41,8 @@
     "jest": "^30.5.2",
     "np": "^12.1.1",
     "rimraf": "^6.1.4",
-    "rollup": "^4.68.8",
+    "rolldown": "^1.3.3",
+    "rolldown-plugin-dts": "^0.30.2",
     "typescript": "^7.0.2"
   },
   "repository": {

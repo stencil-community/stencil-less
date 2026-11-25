@@ -1,0 +1,101 @@
+name: Release
+
+# npm trusted publishing: register THIS file (release.yml) as the trusted publisher on npmjs.com
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: 'Release channel'
+        required: true
+        type: choice
+        default: dev
+        options:
+          - dev
+          - production
+      bump:
+        description: 'Semver bump (production releases only)'
+        required: false
+        type: choice
+        default: patch
+        options:
+          - patch
+          - minor
+          - major
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: 🚀 Publish (${{ inputs.channel }})
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # push version commit + tag (production)
+      id-token: write # npm trusted publishing (OIDC) + provenance
+
+    steps:
+      - name: 🛑 Ensure production releases run from master
+        if: ${{ inputs.channel == 'production' && github.ref != 'refs/heads/master' }}
+        run: |
+          echo "::error::Production releases must be run from master (got $GITHUB_REF)."
+          exit 1
+
+      - name: 📥 Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # only production needs credentials to push the version commit/tag back
+          persist-credentials: ${{ inputs.channel == 'production' }}
+
+      - name: 🟢 Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
+
+      # Trusted publishing needs npm >= 11.5.1
+      - name: 📦 Update npm
+        run: npm install -g npm@latest
+
+      - name: 📥 Install Dependencies
+        run: npm install --no-audit --no-fund
+
+      # Note: the package.json "version" lifecycle script runs `npm run build`
+      # (rimraf + typecheck + test + lint + bundle) during each `npm version` below.
+
+      - name: 🏷️ Set Dev Version
+        if: ${{ inputs.channel == 'dev' }}
+        run: |
+          BASE=$(node -p "require('./package.json').version")
+          DEV_VERSION="$BASE-dev.$(date +%s).$(git rev-parse --short HEAD)"
+          echo "Publishing $DEV_VERSION"
+          npm version "$DEV_VERSION" --no-git-tag-version
+
+      - name: 🔧 Configure Git
+        if: ${{ inputs.channel == 'production' }}
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+      - name: 🏷️ Bump Version, Commit & Tag
+        if: ${{ inputs.channel == 'production' }}
+        id: bump
+        env:
+          BUMP: ${{ inputs.bump }}
+        run: |
+          # stdout of `npm version` includes the build log, so read the version back from package.json
+          npm version "$BUMP" --tag-version-prefix="v" --message "v%s"
+          echo "tag=v$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: 🚀 Publish to npm
+        run: npm publish --access public --tag ${{ inputs.channel == 'production' && 'latest' || 'dev' }}
+
+      # Push only after a successful publish so a failed publish doesn't leave a dangling tag
+      - name: 🔄 Push Version Commit & Tag
+        if: ${{ inputs.channel == 'production' }}
+        run: |
+          git push origin "HEAD:$GITHUB_REF_NAME"
+          git push origin "${{ steps.bump.outputs.tag }}"

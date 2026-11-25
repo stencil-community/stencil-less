@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - '**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & Test (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # @stencil/core v5 requires Node >= 22
+        node: ['22', '24']
+
+    steps:
+      - name: 📥 Checkout Code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: 🟢 Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: ${{ matrix.node }}
+
+      # No lockfile is committed (.npmrc sets package-lock=false), so `npm ci` isn't an option
+      - name: 📥 Install Dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: 🧹 Lint & Format Check (Biome)
+        run: npm run lint
+
+      - name: 🔎 Typecheck
+        run: npm run typecheck
+
+      - name: 🧪 Unit Tests
+        run: npm test -- --ci
+
+      - name: 🏗️ Bundle
+        run: npm run bundle
+
+      - name: 📦 Verify Package Contents
+        run: npm pack --dry-run
